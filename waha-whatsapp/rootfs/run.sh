@@ -18,7 +18,7 @@ echo "[INFO] ============================================"
 
 # Read addon options (set defaults if config file absent)
 if [ -f "$CONFIG_PATH" ]; then
-    API_KEY=$(config 'api_key' 'changeme')
+    API_KEY=$(config 'api_key' '')
     DASHBOARD_USERNAME=$(config 'dashboard_username' 'admin')
     DASHBOARD_PASSWORD=$(config 'dashboard_password' 'admin')
     SESSION_NAME=$(config 'session_name' 'default')
@@ -28,7 +28,7 @@ if [ -f "$CONFIG_PATH" ]; then
     LOG_LEVEL=$(config 'log_level' 'INFO')
 else
     echo "[WARN] No options.json found, using defaults"
-    API_KEY="${WHATSAPP_API_KEY:-changeme}"
+    API_KEY="${WHATSAPP_API_KEY:-}"
     DASHBOARD_USERNAME="${WAHA_DASHBOARD_USERNAME:-admin}"
     DASHBOARD_PASSWORD="${WAHA_DASHBOARD_PASSWORD:-admin}"
     SESSION_NAME="${WAHA_SESSION_NAME:-default}"
@@ -39,9 +39,17 @@ else
 fi
 
 # Export WAHA environment variables
-export WHATSAPP_API_KEY="$API_KEY"
+# Only set API key if non-empty — empty means no authentication required
+if [ -n "$API_KEY" ]; then
+    export WHATSAPP_API_KEY="$API_KEY"
+    echo "[INFO] API key:    set (protected)"
+else
+    echo "[INFO] API key:    NOT SET — dashboard open, set one after pairing!"
+fi
 export WAHA_DASHBOARD_USERNAME="$DASHBOARD_USERNAME"
 export WAHA_DASHBOARD_PASSWORD="$DASHBOARD_PASSWORD"
+export WHATSAPP_SWAGGER_USERNAME="$DASHBOARD_USERNAME"
+export WHATSAPP_SWAGGER_PASSWORD="$DASHBOARD_PASSWORD"
 export WHATSAPP_DEFAULT_ENGINE="$ENGINE"
 export WHATSAPP_HOOK_EVENTS="$WEBHOOK_EVENTS"
 export WAHA_LOG_LEVEL="$LOG_LEVEL"
