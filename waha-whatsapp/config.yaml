@@ -10,7 +10,6 @@ arch:
   - aarch64
 
 url: "https://github.com/appslab-it/waha-addon/tree/main/waha-whatsapp"
-image: "ghcr.io/appslab-it/waha-addon/waha-whatsapp-{arch}"
 
 ports:
   3000/tcp: 3000
