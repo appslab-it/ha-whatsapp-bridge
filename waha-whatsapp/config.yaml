@@ -1,6 +1,6 @@
 name: "WAHA WhatsApp"
 description: "Send WhatsApp messages, photos, and videos from Home Assistant using WAHA (WhatsApp HTTP API)"
-version: "1.0.0"
+version: "1.0.1"
 slug: "waha_whatsapp"
 init: false
 homeassistant: "2023.1.0"
@@ -22,6 +22,8 @@ map:
 
 options:
   api_key: "changeme"
+  dashboard_username: "admin"
+  dashboard_password: "admin"
   session_name: "default"
   engine: "NOWEB"
   webhook_url: ""
@@ -30,6 +32,8 @@ options:
 
 schema:
   api_key: str
+  dashboard_username: str
+  dashboard_password: str
   session_name: str
   engine: list(NOWEB|WEBJS)
   webhook_url: str

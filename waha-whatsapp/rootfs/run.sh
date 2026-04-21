@@ -19,6 +19,8 @@ echo "[INFO] ============================================"
 # Read addon options (set defaults if config file absent)
 if [ -f "$CONFIG_PATH" ]; then
     API_KEY=$(config 'api_key' 'changeme')
+    DASHBOARD_USERNAME=$(config 'dashboard_username' 'admin')
+    DASHBOARD_PASSWORD=$(config 'dashboard_password' 'admin')
     SESSION_NAME=$(config 'session_name' 'default')
     ENGINE=$(config 'engine' 'NOWEB')
     WEBHOOK_URL=$(config 'webhook_url' '')
@@ -27,6 +29,8 @@ if [ -f "$CONFIG_PATH" ]; then
 else
     echo "[WARN] No options.json found, using defaults"
     API_KEY="${WHATSAPP_API_KEY:-changeme}"
+    DASHBOARD_USERNAME="${WAHA_DASHBOARD_USERNAME:-admin}"
+    DASHBOARD_PASSWORD="${WAHA_DASHBOARD_PASSWORD:-admin}"
     SESSION_NAME="${WAHA_SESSION_NAME:-default}"
     ENGINE="${WHATSAPP_DEFAULT_ENGINE:-NOWEB}"
     WEBHOOK_URL="${WHATSAPP_HOOK_URL:-}"
@@ -36,6 +40,8 @@ fi
 
 # Export WAHA environment variables
 export WHATSAPP_API_KEY="$API_KEY"
+export WAHA_DASHBOARD_USERNAME="$DASHBOARD_USERNAME"
+export WAHA_DASHBOARD_PASSWORD="$DASHBOARD_PASSWORD"
 export WHATSAPP_DEFAULT_ENGINE="$ENGINE"
 export WHATSAPP_HOOK_EVENTS="$WEBHOOK_EVENTS"
 export WAHA_LOG_LEVEL="$LOG_LEVEL"
