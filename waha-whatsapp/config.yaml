@@ -1,6 +1,6 @@
 name: "WAHA WhatsApp"
 description: "Send WhatsApp messages, photos, and videos from Home Assistant using WAHA (WhatsApp HTTP API)"
-version: "1.0.3"
+version: "1.0.4"
 slug: "waha_whatsapp"
 init: false
 homeassistant: "2023.1.0"

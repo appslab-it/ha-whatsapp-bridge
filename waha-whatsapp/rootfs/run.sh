@@ -62,6 +62,8 @@ fi
 # Persist session data and files in /data (HA maps this to addon data dir)
 export WHATSAPP_FILES_FOLDER="/data/files"
 export WHATSAPP_SESSIONS_FOLDER="/data/sessions"
+export WAHA_FILES_FOLDER="/data/files"
+export WAHA_SESSIONS_FOLDER="/data/sessions"
 mkdir -p /data/files /data/sessions
 
 echo "[INFO] Engine:     $ENGINE"
