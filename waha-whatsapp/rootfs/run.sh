@@ -61,11 +61,29 @@ if [ -n "$WEBHOOK_URL" ]; then
 fi
 
 # Persist session data and files in /data (HA maps this to addon data dir)
+mkdir -p /data/sessions /data/files
+
 export WHATSAPP_FILES_FOLDER="/data/files"
 export WHATSAPP_SESSIONS_FOLDER="/data/sessions"
 export WAHA_FILES_FOLDER="/data/files"
 export WAHA_SESSIONS_FOLDER="/data/sessions"
-mkdir -p /data/files /data/sessions
+
+# Symlink common WAHA default paths to /data so data persists across restarts
+# regardless of which env var WAHA actually reads
+for path in /app/.sessions /app/sessions /tmp/sessions; do
+    if [ ! -e "$path" ]; then
+        ln -sf /data/sessions "$path"
+        echo "[INFO] Linked $path -> /data/sessions"
+    fi
+done
+for path in /app/.files /app/files /tmp/files; do
+    if [ ! -e "$path" ]; then
+        ln -sf /data/files "$path"
+    fi
+done
+
+echo "[INFO] Sessions dir:"
+ls /data/sessions/ 2>/dev/null || echo "[INFO]   (empty — first run or not yet paired)"
 
 echo "[INFO] Engine:     $ENGINE"
 echo "[INFO] Session:    $SESSION_NAME"
