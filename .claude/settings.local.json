@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth *)",
+      "Bash(gh api *)",
+      "Bash(mkdir -p c:/projects/Docker/waha-addon/.github/workflows)",
+      "Bash(mkdir -p c:/projects/Docker/waha-addon/waha-whatsapp/rootfs)",
+      "Bash(mkdir -p c:/projects/Docker/waha-addon/ha-examples)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

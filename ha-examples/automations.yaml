@@ -1,0 +1,103 @@
+# ============================================================
+# Home Assistant automation examples — WAHA WhatsApp
+# These can be added to automations.yaml or via the UI
+# ============================================================
+
+# --- Example 1: Send a message when a door sensor opens ----
+- alias: "WhatsApp - Notifica porta aperta"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.porta_ingresso
+      to: "on"
+  action:
+    - service: rest_command.whatsapp_send_message
+      data:
+        phone: "393331234567"
+        message: >
+          Attenzione! La porta di ingresso è stata aperta
+          alle {{ now().strftime('%H:%M') }} del {{ now().strftime('%d/%m/%Y') }}.
+
+
+# --- Example 2: Send a camera snapshot on motion ----------
+- alias: "WhatsApp - Foto telecamera su movimento"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.motion_camera_ingresso
+      to: "on"
+  action:
+    - service: camera.snapshot
+      target:
+        entity_id: camera.ingresso
+      data:
+        filename: "/config/www/snapshot_ingresso.jpg"
+    - delay: "00:00:02"
+    - service: rest_command.whatsapp_send_image
+      data:
+        phone: "393331234567"
+        caption: "Movimento rilevato alle {{ now().strftime('%H:%M') }}"
+        url: "http://homeassistant.local:8123/local/snapshot_ingresso.jpg"
+
+
+# --- Example 3: Daily morning briefing -------------------
+- alias: "WhatsApp - Briefing mattutino"
+  trigger:
+    - platform: time
+      at: "07:30:00"
+  action:
+    - service: rest_command.whatsapp_send_message
+      data:
+        phone: "393331234567"
+        message: >
+          Buongiorno! 🌅
+          Temperatura interna: {{ states('sensor.temperature_indoor') }}°C
+          Temperatura esterna: {{ states('sensor.temperature_outdoor') }}°C
+          Umidità: {{ states('sensor.humidity_indoor') }}%
+
+
+# --- Example 4: Alarm notification ----------------------
+- alias: "WhatsApp - Allarme attivato"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.home_alarm
+      to: "triggered"
+  action:
+    - service: rest_command.whatsapp_send_message
+      data:
+        phone: "393331234567"
+        message: "🚨 ALLARME ATTIVATO alle {{ now().strftime('%H:%M:%S') }}!"
+
+
+# --- Example 5: Send message to multiple numbers --------
+- alias: "WhatsApp - Notifica a più numeri"
+  trigger:
+    - platform: state
+      entity_id: input_boolean.emergency
+      to: "on"
+  action:
+    - repeat:
+        for_each:
+          - "393331234567"
+          - "393339876543"
+        sequence:
+          - service: rest_command.whatsapp_send_message
+            data:
+              phone: "{{ repeat.item }}"
+              message: "Emergenza casa! Contattami subito."
+
+
+# --- Example 6: Send a video clip ----------------------
+- alias: "WhatsApp - Clip video su allarme"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.home_alarm
+      to: "triggered"
+  condition:
+    - condition: state
+      entity_id: camera.ingresso
+      state: "recording"
+  action:
+    - service: rest_command.whatsapp_send_video
+      data:
+        phone: "393331234567"
+        caption: "Clip allarme {{ now().strftime('%d/%m %H:%M') }}"
+        url: "http://homeassistant.local:8123/local/alarm_clip.mp4"

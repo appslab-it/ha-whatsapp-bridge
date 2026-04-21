@@ -1,0 +1,75 @@
+# ============================================================
+# Home Assistant configuration.yaml — WAHA WhatsApp examples
+# Add these blocks to your existing configuration.yaml
+# Replace "your_api_key" with the value set in the addon options
+# ============================================================
+
+rest_command:
+
+  # Send a plain text message
+  whatsapp_send_message:
+    url: "http://localhost:3000/api/default/sendText"
+    method: POST
+    headers:
+      X-Api-Key: "your_api_key"
+      Content-Type: "application/json"
+    payload: >
+      {
+        "chatId": "{{ phone }}@c.us",
+        "text": "{{ message }}"
+      }
+
+  # Send an image from a URL (local or remote)
+  whatsapp_send_image:
+    url: "http://localhost:3000/api/default/sendImage"
+    method: POST
+    headers:
+      X-Api-Key: "your_api_key"
+      Content-Type: "application/json"
+    payload: >
+      {
+        "chatId": "{{ phone }}@c.us",
+        "caption": "{{ caption }}",
+        "file": { "url": "{{ url }}" }
+      }
+
+  # Send a video from a URL
+  whatsapp_send_video:
+    url: "http://localhost:3000/api/default/sendVideo"
+    method: POST
+    headers:
+      X-Api-Key: "your_api_key"
+      Content-Type: "application/json"
+    payload: >
+      {
+        "chatId": "{{ phone }}@c.us",
+        "caption": "{{ caption }}",
+        "file": { "url": "{{ url }}" }
+      }
+
+  # Send any file/document from a URL
+  whatsapp_send_file:
+    url: "http://localhost:3000/api/default/sendFile"
+    method: POST
+    headers:
+      X-Api-Key: "your_api_key"
+      Content-Type: "application/json"
+    payload: >
+      {
+        "chatId": "{{ phone }}@c.us",
+        "caption": "{{ caption }}",
+        "file": { "url": "{{ url }}" }
+      }
+
+  # Send a voice note (OGG/OPUS file)
+  whatsapp_send_voice:
+    url: "http://localhost:3000/api/default/sendVoice"
+    method: POST
+    headers:
+      X-Api-Key: "your_api_key"
+      Content-Type: "application/json"
+    payload: >
+      {
+        "chatId": "{{ phone }}@c.us",
+        "file": { "url": "{{ url }}" }
+      }
