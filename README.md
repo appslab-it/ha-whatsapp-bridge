@@ -1,273 +1,191 @@
-# WAHA WhatsApp — Home Assistant Addon
+# WAHA WhatsApp — Home Assistant Integration
 
-Send WhatsApp **messages, images, videos, and files** directly from Home Assistant automations using [WAHA](https://waha.devlike.pro/) (WhatsApp HTTP API).
+Invia messaggi, immagini, video e file WhatsApp direttamente dalle automazioni di Home Assistant, senza toccare `configuration.yaml`.
+
+Basato su [WAHA](https://waha.devlike.pro/) (WhatsApp HTTP API).
 
 ---
 
-## Architecture
+## Architettura
 
-```mermaid
-graph TD
-    subgraph HA["Home Assistant"]
-        AUTO[Automation / Script]
-        REST[rest_command]
-        HOOK[Webhook trigger]
-    end
-
-    subgraph ADDON["WAHA Addon — port 3000"]
-        API[REST API]
-        ENGINE{Engine}
-        SESSION[(Session & Files\n/data)]
-    end
-
-    subgraph WA["WhatsApp"]
-        WSERVER[WhatsApp Servers]
-        PHONE[📱 Recipient]
-    end
-
-    PHONE2[📱 Your paired phone]
-
-    AUTO -->|service call| REST
-    REST -->|HTTP POST| API
-    API --> ENGINE
-    ENGINE -->|NOWEB — WA protocol\nor WEBJS — headless browser| WSERVER
-    WSERVER --> PHONE
-
-    PHONE2 -->|QR code pairing\none time only| ENGINE
-    ENGINE --- SESSION
-
-    WSERVER -->|incoming message| API
-    API -->|webhook POST| HOOK
-    HOOK --> AUTO
+```
+[Home Assistant]                    [WAHA — Docker]
+  Automation
+    └─► waha.send_message  ──HTTP──►  API :3000  ──► WhatsApp ──► 📱
+  sensor.waha_session_status ◄──poll──┘
 ```
 
-**Outbound flow** (HA → WhatsApp):
-`Automation` → `rest_command` → `WAHA API :3000` → `WhatsApp servers` → `📱 recipient`
+- **WAHA** gira come container Docker (sul tuo NAS, VM o stesso host di HA)
+- **L'integration HACS** si connette all'API WAHA e registra i servizi nativi in HA
 
-**Inbound flow** (WhatsApp → HA, optional):
-`📱 sender` → `WhatsApp servers` → `WAHA webhook` → `HA webhook trigger` → `Automation`
+---
+
+## Installazione
+
+### 1. Avvia WAHA con Docker Compose
+
+Clona il repo e avvia WAHA:
+
+```bash
+git clone https://github.com/appslab-it/waha-addon.git
+cd waha-addon
+# Modifica WHATSAPP_API_KEY in docker-compose.yml
+docker compose up -d
+```
+
+I dati di sessione (QR code pairing) vengono salvati in `./data/sessions/` nella stessa cartella.
+
+### 2. Associa il tuo account WhatsApp
+
+1. Apri il dashboard WAHA: `http://<ip-host>:3000`
+2. Vai in **Sessions** → clicca sulla sessione → **QR Code**
+3. Scansiona il QR code con WhatsApp sul tuo telefono (**Dispositivi collegati → Collega un dispositivo**)
+4. Lo stato diventa `WORKING` — pronto
+
+Devi farlo una volta sola. La sessione persiste tra i riavvii.
+
+### 3. Installa l'integration via HACS
+
+1. In HACS → **Repository personalizzati** → aggiungi `https://github.com/appslab-it/waha-addon` come tipo **Integration**
+2. Cerca **WAHA WhatsApp** → **Scarica**
+3. Riavvia Home Assistant
+
+### 4. Configura l'integration
+
+1. Vai in **Impostazioni → Dispositivi & Servizi → Aggiungi integrazione**
+2. Cerca **WAHA WhatsApp**
+3. Compila il form:
+   - **Host**: IP o hostname del server WAHA (es. `192.168.1.100`)
+   - **Porta**: `3000`
+   - **API Key**: quella impostata in `docker-compose.yml`
+   - **Session Name**: `default`
+4. Salva — HA verifica la connessione in tempo reale
+
+---
+
+## Migrazione da Addon HA (utenti esistenti)
+
+Se stavi usando il vecchio addon, ecco come preservare il QR code pairing.
+
+### Step 1 — Backup della sessione dall'addon
+
+Dall'addon SSH di HA (o dal terminale di HA OS):
+
+```bash
+# Trova la cartella dati dell'addon
+ls /mnt/data/supervisor/addons/data/waha_whatsapp/sessions/
+
+# Copia in una posizione temporanea
+cp -r /mnt/data/supervisor/addons/data/waha_whatsapp/sessions/ /tmp/waha-sessions-backup/
+```
+
+> In alternativa usa il File Editor di HA per navigare in `/addon_configs/waha_whatsapp/`.
+
+### Step 2 — Prepara la cartella dati per Docker Compose
+
+Sul server dove girerai WAHA con Docker Compose:
+
+```bash
+mkdir -p /percorso/waha-addon/data/sessions
+cp -r /tmp/waha-sessions-backup/* /percorso/waha-addon/data/sessions/
+```
+
+### Step 3 — Avvia WAHA con Docker Compose
+
+```bash
+cd /percorso/waha-addon
+docker compose up -d
+```
+
+WAHA troverà la sessione esistente e si connetterà senza richiedere un nuovo QR code.
+
+### Step 4 — Rimuovi il vecchio addon
+
+In HA → **Impostazioni → Add-on** → **WAHA WhatsApp** → **Disinstalla**.
+
+### Step 5 — Installa l'integration HACS
+
+Segui i punti 3 e 4 della sezione Installazione sopra.
+
+### Step 6 — Aggiorna le automazioni
+
+Sostituisci nelle automazioni esistenti:
+
+```yaml
+# Prima (rest_command)
+service: rest_command.whatsapp_send_message
+
+# Dopo (integration nativa)
+service: waha.send_message
+```
+
+---
+
+## Servizi disponibili
+
+| Servizio | Parametri |
+|---|---|
+| `waha.send_message` | `phone`, `message` |
+| `waha.send_image` | `phone`, `url`, `caption` (opz.) |
+| `waha.send_video` | `phone`, `url`, `caption` (opz.) |
+| `waha.send_file` | `phone`, `url`, `filename` (opz.) |
+| `waha.send_voice` | `phone`, `url` |
+
+Tutti i servizi accettano anche `session_name` (opzionale, per multi-sessione).
+
+**Formato numero di telefono:** internazionale senza `+` — es. `393331234567` (Italia), `12125551234` (USA).
+
+---
+
+## Sensore
+
+L'integration crea automaticamente `sensor.waha_default_session_status` con i valori:
+- `WORKING` — sessione attiva, pronto all'invio
+- `STOPPED` — sessione ferma
+- `FAILED` — errore di connessione WhatsApp
 
 ---
 
 ## Engines
 
-| Engine | Description | Resource usage | ARM support |
-|--------|-------------|----------------|-------------|
-| **NOWEB** ✅ | Direct WhatsApp multi-device protocol, no browser | ~100 MB RAM | Yes |
-| **WEBJS** | WhatsApp Web inside headless Chromium | ~500 MB RAM | Limited |
-
-NOWEB is recommended for most setups (NAS, Raspberry Pi, low-power devices).
+| Engine | RAM | ARM | Note |
+|---|---|---|---|
+| **NOWEB** ✅ | ~100 MB | Sì | Consigliato — protocollo nativo |
+| **WEBJS** | ~500 MB | Limitato | Headless Chromium |
 
 ---
 
-## Installation
+## Esempi automazioni
 
-### Requirements by HA installation type
-
-| HA Installation | Addon supported | Method |
-|---|---|---|
-| **Home Assistant OS** | ✅ | Add-on Store (this guide) |
-| **Home Assistant Supervised** | ✅ | Add-on Store (this guide) |
-| **Home Assistant Container** | ❌ | Use [docker-compose](#docker-compose-standalone) |
-| **Home Assistant Core** | ❌ | Use [docker-compose](#docker-compose-standalone) |
-
-### Add-on Store (HAOS / Supervised)
-
-1. Go to **Settings → Add-ons → Add-on Store**
-2. Click **⋮** (top-right) → **Repositories**
-3. Add: `https://github.com/appslab-it/waha-addon`
-4. Find **WAHA WhatsApp** in the store → **Install**
-5. Configure the options (see below) → **Start**
-
-> The first install downloads the WAHA image (~500 MB). This can take several minutes.
-
-### Docker Compose (standalone)
-
-For **HA Container** or **HA Core**, run WAHA alongside Home Assistant:
+Vedi [ha-examples/automations.yaml](ha-examples/automations.yaml).
 
 ```yaml
-# docker-compose.yml
-services:
-  waha:
-    image: devlikeapro/waha:latest
-    container_name: waha-whatsapp
-    ports:
-      - "3000:3000"
-    environment:
-      WHATSAPP_API_KEY: "changeme"
-      WHATSAPP_DEFAULT_ENGINE: "NOWEB"
-    volumes:
-      - waha_sessions:/app/sessions
-      - waha_files:/app/files
-    restart: unless-stopped
-
-volumes:
-  waha_sessions:
-  waha_files:
-```
-
-Then point your `rest_command` URLs to `http://<host-ip>:3000` instead of `localhost`.
-
----
-
-## Configuration Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `api_key` | string | `changeme` | Secret key to authenticate API requests. Change this. |
-| `session_name` | string | `default` | WhatsApp session identifier |
-| `engine` | enum | `NOWEB` | `NOWEB` (recommended) or `WEBJS` |
-| `webhook_url` | string | _(empty)_ | URL to receive incoming WhatsApp events (e.g. `http://homeassistant.local:8123/api/webhook/whatsapp`) |
-| `webhook_events` | string | `message,session.status` | Comma-separated events to forward to the webhook |
-| `log_level` | enum | `INFO` | `INFO`, `DEBUG`, `WARN`, `ERROR` |
-
----
-
-## Pairing Your WhatsApp Account
-
-1. Start the addon
-2. Open the WAHA dashboard: **`http://<ha-ip>:3000`**
-3. Navigate to **Sessions** → click your session → **QR Code**
-4. Scan the QR code with WhatsApp on your phone (**Linked Devices → Link a device**)
-5. Status changes to `WORKING` — you're ready
-
-Session data is persisted across restarts. You only need to scan the QR code once.
-
----
-
-## Home Assistant Integration
-
-### REST Commands
-
-Add to `configuration.yaml`:
-
-```yaml
-rest_command:
-  whatsapp_send_message:
-    url: "http://localhost:3000/api/default/sendText"
-    method: POST
-    headers:
-      X-Api-Key: "your_api_key"
-      Content-Type: "application/json"
-    payload: '{"chatId": "{{ phone }}@c.us", "text": "{{ message }}"}'
-
-  whatsapp_send_image:
-    url: "http://localhost:3000/api/default/sendImage"
-    method: POST
-    headers:
-      X-Api-Key: "your_api_key"
-      Content-Type: "application/json"
-    payload: '{"chatId": "{{ phone }}@c.us", "caption": "{{ caption }}", "file": {"url": "{{ url }}"}}'
-
-  whatsapp_send_video:
-    url: "http://localhost:3000/api/default/sendVideo"
-    method: POST
-    headers:
-      X-Api-Key: "your_api_key"
-      Content-Type: "application/json"
-    payload: '{"chatId": "{{ phone }}@c.us", "caption": "{{ caption }}", "file": {"url": "{{ url }}"}}'
-
-  whatsapp_send_file:
-    url: "http://localhost:3000/api/default/sendFile"
-    method: POST
-    headers:
-      X-Api-Key: "your_api_key"
-      Content-Type: "application/json"
-    payload: '{"chatId": "{{ phone }}@c.us", "caption": "{{ caption }}", "file": {"url": "{{ url }}"}}'
-```
-
-Replace `default` with your `session_name` if you changed it.
-Replace `localhost` with the host IP if running HA Container/Core.
-
-### Phone Number Format
-
-Use international format without `+` and without spaces:
-- 🇮🇹 Italy: `393331234567` (country code `39` + number without leading `0`)
-- 🇺🇸 USA: `12125551234`
-
-### Automation Examples
-
-**Send a message when a door opens:**
-```yaml
-automation:
+- alias: "Notifica porta aperta"
   trigger:
     platform: state
-    entity_id: binary_sensor.front_door
+    entity_id: binary_sensor.porta_ingresso
     to: "on"
   action:
-    service: rest_command.whatsapp_send_message
+    service: waha.send_message
     data:
       phone: "393331234567"
-      message: "Front door opened at {{ now().strftime('%H:%M') }}"
+      message: "La porta è stata aperta alle {{ now().strftime('%H:%M') }}"
 ```
-
-**Send a camera snapshot on motion:**
-```yaml
-automation:
-  trigger:
-    platform: state
-    entity_id: binary_sensor.camera_motion
-    to: "on"
-  action:
-    - service: camera.snapshot
-      target:
-        entity_id: camera.entrance
-      data:
-        filename: "/config/www/snapshot.jpg"
-    - delay: "00:00:02"
-    - service: rest_command.whatsapp_send_image
-      data:
-        phone: "393331234567"
-        caption: "Motion detected at {{ now().strftime('%H:%M') }}"
-        url: "http://homeassistant.local:8123/local/snapshot.jpg"
-```
-
-**Send to multiple numbers:**
-```yaml
-action:
-  repeat:
-    for_each: ["393331234567", "393339876543"]
-    sequence:
-      - service: rest_command.whatsapp_send_message
-        data:
-          phone: "{{ repeat.item }}"
-          message: "Alert: something happened!"
-```
-
-More examples in [ha-examples/](ha-examples/).
-
----
-
-## API Documentation
-
-The full WAHA REST API (Swagger UI) is available at:
-```
-http://<ha-ip>:3000/api
-```
-
----
-
-## Supported Architectures
-
-| Architecture | Devices |
-|---|---|
-| `amd64` | Synology DS218+, Intel NUC, most x86_64 machines |
-| `aarch64` | Raspberry Pi 4/5, Synology DS923+ |
 
 ---
 
 ## Troubleshooting
 
-| Problem | Solution |
+| Problema | Soluzione |
 |---|---|
-| QR code not appearing | Check addon logs, restart the addon |
-| Session disconnects | Re-scan QR code; consider using NOWEB engine |
-| Messages not sending | Verify `api_key` matches in options and `rest_command` |
-| Port 3000 already in use | Change the port mapping in addon options |
-| Build takes too long | Normal — first download of WAHA image is ~500 MB |
+| HACS non trova l'integration | Riavvia HA dopo il download HACS |
+| "Cannot connect" al setup | Verifica che WAHA sia avviato e raggiungibile sulla porta 3000 |
+| QR code non appare | Apri `http://<ip>:3000`, vai in Sessions e avvia la sessione manualmente |
+| Sessione si disconnette | Rescansiona il QR code; usa il motore NOWEB |
+| Messaggi non arrivano | Verifica che `sensor.waha_session_status` sia `WORKING` |
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT

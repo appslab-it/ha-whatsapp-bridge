@@ -1,8 +1,3 @@
-version: "3.8"
-
-# Standalone testing — NOT used when running as HA addon.
-# Use this to test WAHA locally before integrating with Home Assistant.
-
 services:
   waha:
     image: devlikeapro/waha:latest
@@ -10,15 +5,17 @@ services:
     ports:
       - "3000:3000"
     environment:
-      WHATSAPP_API_KEY: "changeme"
       WHATSAPP_DEFAULT_ENGINE: "NOWEB"
+      WHATSAPP_API_KEY: "changeme"           # Cambia con la tua chiave segreta
+      WAHA_DASHBOARD_USERNAME: "admin"
+      WAHA_DASHBOARD_PASSWORD: "admin"
+      WHATSAPP_START_SESSION: "default"
       WHATSAPP_HOOK_EVENTS: "message,session.status"
       WAHA_LOG_LEVEL: "INFO"
-      # Uncomment to enable webhook forwarding to Home Assistant:
       # WHATSAPP_HOOK_URL: "http://homeassistant.local:8123/api/webhook/whatsapp"
     volumes:
-      - waha_sessions:/app/sessions
-      - waha_files:/app/files
+      - ./data/sessions:/app/sessions        # Sessioni WhatsApp (QR code pairing)
+      - ./data/files:/app/files              # File ricevuti
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
@@ -26,7 +23,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
-
-volumes:
-  waha_sessions:
-  waha_files:
