@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connetti a WAHA WhatsApp",
+        "description": "Configura la connessione all'istanza WAHA. Assicurati che l'addon WAHA sia in esecuzione prima di procedere.",
+        "data": {
+          "host": "Host",
+          "port": "Porta",
+          "api_key": "API Key (lascia vuoto se non configurata)",
+          "session_name": "Nome Sessione"
+        },
+        "data_description": {
+          "host": "IP o hostname di WAHA (usa 'localhost' se WAHA gira come addon HA)",
+          "api_key": "La stessa API key configurata nelle opzioni dell'addon WAHA"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossibile connettersi a WAHA. Verifica host, porta e API key.",
+      "unknown": "Errore imprevisto. Controlla i log di Home Assistant."
+    },
+    "abort": {
+      "already_configured": "Questa istanza WAHA è già configurata."
+    }
+  }
+}

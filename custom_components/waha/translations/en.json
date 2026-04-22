@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to WAHA WhatsApp",
+        "description": "Configure the connection to your WAHA instance. Make sure the WAHA addon is running before proceeding.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "api_key": "API Key (leave empty if not configured)",
+          "session_name": "Session Name"
+        },
+        "data_description": {
+          "host": "IP address or hostname of WAHA (use 'localhost' if WAHA runs as a HA addon)",
+          "api_key": "The same API key configured in the WAHA addon options"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to WAHA. Check host, port and API key.",
+      "unknown": "Unexpected error. Check the Home Assistant logs for details."
+    },
+    "abort": {
+      "already_configured": "This WAHA instance is already configured."
+    }
+  }
+}

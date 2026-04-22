@@ -1,0 +1,134 @@
+send_message:
+  name: Invia Messaggio
+  description: Invia un messaggio WhatsApp di testo.
+  fields:
+    phone:
+      name: Numero di telefono
+      description: "Numero internazionale senza + (es. 393331234567)"
+      required: true
+      example: "393331234567"
+      selector:
+        text:
+    message:
+      name: Messaggio
+      description: Testo del messaggio da inviare.
+      required: true
+      selector:
+        text:
+          multiline: true
+    session_name:
+      name: Nome Sessione
+      description: "Sessione WAHA da usare (opzionale, usa quella predefinita se omessa)."
+      required: false
+      selector:
+        text:
+
+send_image:
+  name: Invia Immagine
+  description: Invia un'immagine WhatsApp con didascalia opzionale.
+  fields:
+    phone:
+      name: Numero di telefono
+      description: "Numero internazionale senza + (es. 393331234567)"
+      required: true
+      selector:
+        text:
+    url:
+      name: URL Immagine
+      description: URL dell'immagine da inviare.
+      required: true
+      selector:
+        text:
+    caption:
+      name: Didascalia
+      description: Testo opzionale da allegare all'immagine.
+      required: false
+      selector:
+        text:
+    session_name:
+      name: Nome Sessione
+      description: "Sessione WAHA da usare (opzionale)."
+      required: false
+      selector:
+        text:
+
+send_video:
+  name: Invia Video
+  description: Invia un video WhatsApp con didascalia opzionale.
+  fields:
+    phone:
+      name: Numero di telefono
+      description: "Numero internazionale senza + (es. 393331234567)"
+      required: true
+      selector:
+        text:
+    url:
+      name: URL Video
+      description: URL del video da inviare.
+      required: true
+      selector:
+        text:
+    caption:
+      name: Didascalia
+      description: Testo opzionale da allegare al video.
+      required: false
+      selector:
+        text:
+    session_name:
+      name: Nome Sessione
+      description: "Sessione WAHA da usare (opzionale)."
+      required: false
+      selector:
+        text:
+
+send_file:
+  name: Invia File
+  description: Invia un documento o file via WhatsApp.
+  fields:
+    phone:
+      name: Numero di telefono
+      description: "Numero internazionale senza + (es. 393331234567)"
+      required: true
+      selector:
+        text:
+    url:
+      name: URL File
+      description: URL del file da inviare.
+      required: true
+      selector:
+        text:
+    filename:
+      name: Nome file
+      description: Nome visualizzato del file (opzionale).
+      required: false
+      selector:
+        text:
+    session_name:
+      name: Nome Sessione
+      description: "Sessione WAHA da usare (opzionale)."
+      required: false
+      selector:
+        text:
+
+send_voice:
+  name: Invia Nota Vocale
+  description: Invia una nota vocale WhatsApp (formato OGG/OPUS).
+  fields:
+    phone:
+      name: Numero di telefono
+      description: "Numero internazionale senza + (es. 393331234567)"
+      required: true
+      selector:
+        text:
+    url:
+      name: URL Audio
+      description: URL del file audio (OGG/OPUS).
+      required: true
+      selector:
+        text:
+    session_name:
+      name: Nome Sessione
+      description: "Sessione WAHA da usare (opzionale)."
+      required: false
+      selector:
+        text:
