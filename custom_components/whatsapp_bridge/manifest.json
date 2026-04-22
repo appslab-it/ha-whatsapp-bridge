@@ -1,0 +1,13 @@
+{
+  "domain": "whatsapp_bridge",
+  "name": "WhatsApp Bridge",
+  "version": "1.0.0",
+  "documentation": "https://github.com/appslab-it/ha-whatsapp-bridge",
+  "issue_tracker": "https://github.com/appslab-it/ha-whatsapp-bridge/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@appslab-it"],
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "integration_type": "service"
+}

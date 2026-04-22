@@ -1,6 +1,6 @@
 # ============================================================
 # Home Assistant automation examples — WAHA WhatsApp
-# Usa i servizi nativi dell'integration (waha.send_*)
+# Usa i servizi nativi dell'integration (whatsapp_bridge.send_*)
 # Non richiede modifiche a configuration.yaml
 # ============================================================
 
@@ -11,7 +11,7 @@
       entity_id: binary_sensor.porta_ingresso
       to: "on"
   action:
-    - service: waha.send_message
+    - service: whatsapp_bridge.send_message
       data:
         phone: "393331234567"
         message: >
@@ -32,7 +32,7 @@
       data:
         filename: "/config/www/snapshot_ingresso.jpg"
     - delay: "00:00:02"
-    - service: waha.send_image
+    - service: whatsapp_bridge.send_image
       data:
         phone: "393331234567"
         caption: "Movimento rilevato alle {{ now().strftime('%H:%M') }}"
@@ -45,7 +45,7 @@
     - platform: time
       at: "07:30:00"
   action:
-    - service: waha.send_message
+    - service: whatsapp_bridge.send_message
       data:
         phone: "393331234567"
         message: >
@@ -62,7 +62,7 @@
       entity_id: alarm_control_panel.home_alarm
       to: "triggered"
   action:
-    - service: waha.send_message
+    - service: whatsapp_bridge.send_message
       data:
         phone: "393331234567"
         message: "🚨 ALLARME ATTIVATO alle {{ now().strftime('%H:%M:%S') }}!"
@@ -80,7 +80,7 @@
           - "393331234567"
           - "393339876543"
         sequence:
-          - service: waha.send_message
+          - service: whatsapp_bridge.send_message
             data:
               phone: "{{ repeat.item }}"
               message: "Emergenza casa! Contattami subito."
@@ -97,7 +97,7 @@
       entity_id: camera.ingresso
       state: "recording"
   action:
-    - service: waha.send_video
+    - service: whatsapp_bridge.send_video
       data:
         phone: "393331234567"
         caption: "Clip allarme {{ now().strftime('%d/%m %H:%M') }}"

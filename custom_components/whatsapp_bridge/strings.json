@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connetti a WAHA WhatsApp",
-        "description": "Configura la connessione all'istanza WAHA. Assicurati che l'addon WAHA sia in esecuzione prima di procedere.",
+        "title": "Connetti a WhatsApp Bridge",
+        "description": "Configura la connessione all'istanza WAHA. Assicurati che il container WAHA sia in esecuzione prima di procedere.",
         "data": {
           "host": "Host",
           "port": "Porta",
@@ -11,8 +11,8 @@
           "session_name": "Nome Sessione"
         },
         "data_description": {
-          "host": "IP o hostname di WAHA (usa 'localhost' se WAHA gira come addon HA)",
-          "api_key": "La stessa API key configurata nelle opzioni dell'addon WAHA"
+          "host": "IP o hostname del server WAHA (es. 192.168.1.100)",
+          "api_key": "La stessa API key impostata in docker-compose.yml"
         }
       }
     },
@@ -21,7 +21,7 @@
       "unknown": "Errore imprevisto. Controlla i log di Home Assistant."
     },
     "abort": {
-      "already_configured": "Questa istanza WAHA è già configurata."
+      "already_configured": "Questa istanza WhatsApp Bridge è già configurata."
     }
   }
 }

@@ -1,4 +1,4 @@
-# WAHA WhatsApp — Home Assistant Integration
+# WhatsApp Bridge — Home Assistant Integration
 
 Invia messaggi, immagini, video e file WhatsApp direttamente dalle automazioni di Home Assistant, senza toccare `configuration.yaml`.
 
@@ -11,8 +11,8 @@ Basato su [WAHA](https://waha.devlike.pro/) (WhatsApp HTTP API).
 ```
 [Home Assistant]                    [WAHA — Docker]
   Automation
-    └─► waha.send_message  ──HTTP──►  API :3000  ──► WhatsApp ──► 📱
-  sensor.waha_session_status ◄──poll──┘
+    └─► whatsapp_bridge.send_message  ──HTTP──►  API :3000  ──► WhatsApp ──► 📱
+  sensor.whatsapp_bridge_default_session_status ◄──poll──┘
 ```
 
 - **WAHA** gira come container Docker (sul tuo NAS, VM o stesso host di HA)
@@ -27,8 +27,8 @@ Basato su [WAHA](https://waha.devlike.pro/) (WhatsApp HTTP API).
 Clona il repo e avvia WAHA:
 
 ```bash
-git clone https://github.com/appslab-it/waha-addon.git
-cd waha-addon
+git clone https://github.com/appslab-it/ha-whatsapp-bridge.git
+cd ha-whatsapp-bridge
 # Modifica WHATSAPP_API_KEY in docker-compose.yml
 docker compose up -d
 ```
@@ -46,14 +46,14 @@ Devi farlo una volta sola. La sessione persiste tra i riavvii.
 
 ### 3. Installa l'integration via HACS
 
-1. In HACS → **Repository personalizzati** → aggiungi `https://github.com/appslab-it/waha-addon` come tipo **Integration**
-2. Cerca **WAHA WhatsApp** → **Scarica**
+1. In HACS → **Repository personalizzati** → aggiungi `https://github.com/appslab-it/ha-whatsapp-bridge` come tipo **Integration**
+2. Cerca **WhatsApp Bridge** → **Scarica**
 3. Riavvia Home Assistant
 
 ### 4. Configura l'integration
 
 1. Vai in **Impostazioni → Dispositivi & Servizi → Aggiungi integrazione**
-2. Cerca **WAHA WhatsApp**
+2. Cerca **WhatsApp Bridge**
 3. Compila il form:
    - **Host**: IP o hostname del server WAHA (es. `192.168.1.100`)
    - **Porta**: `3000`
@@ -116,7 +116,7 @@ Sostituisci nelle automazioni esistenti:
 service: rest_command.whatsapp_send_message
 
 # Dopo (integration nativa)
-service: waha.send_message
+service: whatsapp_bridge.send_message
 ```
 
 ---
@@ -125,11 +125,11 @@ service: waha.send_message
 
 | Servizio | Parametri |
 |---|---|
-| `waha.send_message` | `phone`, `message` |
-| `waha.send_image` | `phone`, `url`, `caption` (opz.) |
-| `waha.send_video` | `phone`, `url`, `caption` (opz.) |
-| `waha.send_file` | `phone`, `url`, `filename` (opz.) |
-| `waha.send_voice` | `phone`, `url` |
+| `whatsapp_bridge.send_message` | `phone`, `message` |
+| `whatsapp_bridge.send_image` | `phone`, `url`, `caption` (opz.) |
+| `whatsapp_bridge.send_video` | `phone`, `url`, `caption` (opz.) |
+| `whatsapp_bridge.send_file` | `phone`, `url`, `filename` (opz.) |
+| `whatsapp_bridge.send_voice` | `phone`, `url` |
 
 Tutti i servizi accettano anche `session_name` (opzionale, per multi-sessione).
 
@@ -139,7 +139,7 @@ Tutti i servizi accettano anche `session_name` (opzionale, per multi-sessione).
 
 ## Sensore
 
-L'integration crea automaticamente `sensor.waha_default_session_status` con i valori:
+L'integration crea automaticamente `sensor.whatsapp_bridge_default_session_status` con i valori:
 - `WORKING` — sessione attiva, pronto all'invio
 - `STOPPED` — sessione ferma
 - `FAILED` — errore di connessione WhatsApp
@@ -166,7 +166,7 @@ Vedi [ha-examples/automations.yaml](ha-examples/automations.yaml).
     entity_id: binary_sensor.porta_ingresso
     to: "on"
   action:
-    service: waha.send_message
+    service: whatsapp_bridge.send_message
     data:
       phone: "393331234567"
       message: "La porta è stata aperta alle {{ now().strftime('%H:%M') }}"

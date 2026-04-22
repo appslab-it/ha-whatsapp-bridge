@@ -1,4 +1,4 @@
-"""WAHA session status sensor."""
+"""WhatsApp Bridge session status sensor."""
 from __future__ import annotations
 
 import asyncio
@@ -28,12 +28,12 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     data = hass.data[DOMAIN][entry.entry_id]
-    coordinator = WahaCoordinator(hass, data)
+    coordinator = WhatsAppBridgeCoordinator(hass, data)
     await coordinator.async_config_entry_first_refresh()
-    async_add_entities([WahaSessionSensor(coordinator, entry, data["session_name"])])
+    async_add_entities([WhatsAppBridgeSessionSensor(coordinator, entry, data["session_name"])])
 
 
-class WahaCoordinator(DataUpdateCoordinator):
+class WhatsAppBridgeCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, data: dict) -> None:
         super().__init__(
             hass,
@@ -55,17 +55,17 @@ class WahaCoordinator(DataUpdateCoordinator):
                         return await resp.json()
                     return {"status": "unknown"}
         except aiohttp.ClientError as err:
-            raise UpdateFailed(f"Cannot reach WAHA: {err}") from err
+            raise UpdateFailed(f"Cannot reach WhatsApp Bridge: {err}") from err
 
 
-class WahaSessionSensor(CoordinatorEntity, SensorEntity):
+class WhatsAppBridgeSessionSensor(CoordinatorEntity, SensorEntity):
     _attr_icon = "mdi:whatsapp"
     _attr_has_entity_name = True
     _attr_name = "Session Status"
 
     def __init__(
         self,
-        coordinator: WahaCoordinator,
+        coordinator: WhatsAppBridgeCoordinator,
         entry: ConfigEntry,
         session_name: str,
     ) -> None:
@@ -73,9 +73,9 @@ class WahaSessionSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_session_status"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name=f"WAHA ({session_name})",
-            manufacturer="devlikeapro",
-            model="WAHA WhatsApp HTTP API",
+            name=f"WhatsApp Bridge ({session_name})",
+            manufacturer="devlikeapro / WAHA",
+            model="WhatsApp HTTP API",
         )
 
     @property
