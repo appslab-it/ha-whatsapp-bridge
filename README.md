@@ -30,6 +30,7 @@ Clona il repo e avvia WAHA:
 git clone https://github.com/appslab-it/ha-whatsapp-bridge.git
 cd ha-whatsapp-bridge
 # Modifica WHATSAPP_API_KEY in docker-compose.yml
+mkdir -p data/sessions data/files
 docker compose up -d
 ```
 
