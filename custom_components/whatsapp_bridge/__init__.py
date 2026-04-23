@@ -101,10 +101,11 @@ def _register_services(hass: HomeAssistant) -> None:
         data = _get_client(hass, call.data.get("session_name"))
         await _post(
             data,
-            f"/api/{data['session_name']}/sendText",
+            "/api/sendText",
             {
                 "chatId": call.data["phone"] + "@c.us",
                 "text": call.data["message"],
+                "session": data["session_name"],
             },
         )
 
@@ -112,11 +113,12 @@ def _register_services(hass: HomeAssistant) -> None:
         data = _get_client(hass, call.data.get("session_name"))
         await _post(
             data,
-            f"/api/{data['session_name']}/sendImage",
+            "/api/sendImage",
             {
                 "chatId": call.data["phone"] + "@c.us",
                 "file": {"url": call.data["url"]},
                 "caption": call.data.get("caption", ""),
+                "session": data["session_name"],
             },
         )
 
@@ -124,11 +126,12 @@ def _register_services(hass: HomeAssistant) -> None:
         data = _get_client(hass, call.data.get("session_name"))
         await _post(
             data,
-            f"/api/{data['session_name']}/sendVideo",
+            "/api/sendVideo",
             {
                 "chatId": call.data["phone"] + "@c.us",
                 "file": {"url": call.data["url"]},
                 "caption": call.data.get("caption", ""),
+                "session": data["session_name"],
             },
         )
 
@@ -136,11 +139,12 @@ def _register_services(hass: HomeAssistant) -> None:
         data = _get_client(hass, call.data.get("session_name"))
         await _post(
             data,
-            f"/api/{data['session_name']}/sendFile",
+            "/api/sendFile",
             {
                 "chatId": call.data["phone"] + "@c.us",
                 "file": {"url": call.data["url"]},
                 "filename": call.data.get("filename", ""),
+                "session": data["session_name"],
             },
         )
 
@@ -148,10 +152,11 @@ def _register_services(hass: HomeAssistant) -> None:
         data = _get_client(hass, call.data.get("session_name"))
         await _post(
             data,
-            f"/api/{data['session_name']}/sendVoice",
+            "/api/sendVoice",
             {
                 "chatId": call.data["phone"] + "@c.us",
                 "file": {"url": call.data["url"]},
+                "session": data["session_name"],
             },
         )
 
