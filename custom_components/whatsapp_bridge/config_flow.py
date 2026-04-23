@@ -44,7 +44,7 @@ class WahaConfigFlow(ConfigFlow, domain=DOMAIN):
                 http_session = async_get_clientsession(self.hass)
                 async with asyncio.timeout(10):
                     async with http_session.get(
-                        f"http://{host}:{port}/api/health", headers=headers
+                        f"http://{host}:{port}/ping", headers=headers
                     ) as resp:
                         if resp.status not in (200, 204):
                             errors["base"] = "cannot_connect"
