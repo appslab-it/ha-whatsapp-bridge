@@ -14,7 +14,7 @@ services:
       WAHA_LOG_LEVEL: "INFO"
       # WHATSAPP_HOOK_URL: "http://homeassistant.local:8123/api/webhook/whatsapp"
     volumes:
-      - ./data/sessions:/app/sessions        # Sessioni WhatsApp (QR code pairing)
+      - ./data/sessions:/app/.sessions        # Sessioni WhatsApp (QR code pairing)
       - ./data/files:/app/files              # File ricevuti
     restart: unless-stopped
     healthcheck:
