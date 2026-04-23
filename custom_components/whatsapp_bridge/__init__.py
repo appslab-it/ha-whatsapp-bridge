@@ -33,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         async with asyncio.timeout(10):
             async with http_session.get(
-                f"{base_url}/api/health", headers=headers
+                f"{base_url}/ping", headers=headers
             ) as resp:
                 if resp.status not in (200, 204):
                     raise ConfigEntryNotReady(
